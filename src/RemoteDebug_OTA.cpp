@@ -32,11 +32,9 @@
 // Remote debug over telnet - not recommended for production, only for development
 
 #include "RemoteDebug.h"        //https://github.com/JoaoLopesF/RemoteDebug
-
 RemoteDebug Debug;
 
 // SSID and password
-
 const char* ssid = "ORCE";
 const char* password = "1f000000f1";
 
@@ -55,12 +53,32 @@ boolean mLedON = false;
 
 ////// Setup
 
+void CustomCommandsFunction(){
+	Debug.printf("Last TelnetCommand: %s\r\n",Debug.getLastCommand().c_str());
+
+	if(Debug.getLastCommand()=="R-On"){
+		pinMode( 12, OUTPUT );
+		digitalWrite(12,true);
+		Debug.println("Pin12 - Hight");
+	}
+	if(Debug.getLastCommand()=="R-Off"){
+		pinMode( 12, OUTPUT );
+		digitalWrite(12,false);
+		Debug.println("Pin12 - Low");
+	}
+	//Debug.printf("Chip id %x08\r\n",ESP.getChipId());
+}
+
 void setup() {
 
     // Initialize the Serial (educattional use only, not need in production)
 
     Serial.begin(115200);
 
+    /**************************
+    	WIFI setup
+     *
+     */
     // WiFi connection
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
@@ -84,6 +102,12 @@ void setup() {
 
     WiFi.hostname(hostNameWifi);
 
+
+    /**************************
+    	RemoteDebug setup
+     *
+     */
+
     if (MDNS.begin(HOST_NAME)) {
         Serial.print("* MDNS responder started. Hostname -> ");
         Serial.println(HOST_NAME);
@@ -96,6 +120,14 @@ void setup() {
     Debug.begin(HOST_NAME); // Initiaze the telnet server
 
     Debug.setResetCmdEnabled(true); // Enable the reset command
+
+    //add available custom commands that will be displayed at on help screen
+    String helpCmd =  "LED2-toggle\r\n";
+    helpCmd.concat ("R-On -> (Relais On)\r\n");
+    helpCmd.concat ("R-Off -> (Relais Off)\r\n");
+
+    Debug.setHelpProjectsCmds(helpCmd);
+    Debug.setCallBackProjectCmds(&CustomCommandsFunction);
 
     //Debug.showTime(true); // To show time
 
@@ -116,6 +148,10 @@ void setup() {
     Serial.println("* Please try change debug level in telnet, to see how it works");
     Serial.println("*");
 
+    /**************************
+    	ArduinoOTA setup
+     *
+     */
 
     ArduinoOTA.onStart([]() {
       String type;
@@ -156,7 +192,7 @@ void loop()
 
         mTimeSeconds++;
 
-        Debug.printf("Free Heap %d\n\r",ESP.getFreeHeap());
+        //Debug.printf("Free Heap %d\n\r",ESP.getFreeHeap());
 
      }
 

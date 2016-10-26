@@ -118,6 +118,9 @@ public:
     SimpleList<bss_info>            _meshAPs;
     SimpleList<meshConnectionType>  _connections;
     
+    // flag used to disable station scan, this is important for OTA in AP Mode
+    uint8_t f_ScanDisable=0;
+
 protected:
     
     // in easyMeshComm.cpp

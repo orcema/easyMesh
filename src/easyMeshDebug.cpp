@@ -9,7 +9,12 @@
 #include <Arduino.h>
 #include <stdarg.h>
 
+#include <RemoteDebug.h>
+extern RemoteDebug Debug;
+
 #include "easyMesh.h"
+
+
 
 uint16_t types = 0;
 
